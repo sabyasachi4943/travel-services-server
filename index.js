@@ -22,6 +22,7 @@ async function run() {
       .db("travel-services")
       .collection("services");
     const reviewCollection = client.db("travel-services").collection("reviews");
+    const ordersCollection = client.db("travel-services").collection("orders");
 
     app.get("/services", async (req, res) => {
       const query = {};
@@ -43,7 +44,7 @@ async function run() {
       const result = await reviewCollection.insertOne(review);
       res.send(result);
     });
-
+    // get user specific reviews
     app.get("/reviews", async (req, res) => {
       let query = {};
 
@@ -73,6 +74,26 @@ async function run() {
       const reviews = await cursor.toArray();
       res.send(reviews);
     });
+
+    // orders api
+    app.post('/orders', async (req, res) => {
+      const order = req.body;
+      const result = await ordersCollection.insertOne(order);
+      res.send(result);
+    });
+
+    app.get('/orders', async (req, res) => {
+      let query = {};
+      if (req.query.email) {
+        query = {
+          email: req.query.email,
+        }
+      }
+      const cursor = ordersCollection.find(query);
+      const orders = await cursor.toArray();
+      res.send(orders);
+    })
+
 
 
   } finally {
